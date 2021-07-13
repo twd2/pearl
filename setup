@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cd $(dirname ${0})
+kmutil configure-boot -c pearl.macho -v "$1"
