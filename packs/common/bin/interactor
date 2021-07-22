@@ -6,9 +6,9 @@ mount -t devpts devpts /dev/pts
 ln -sf pts/ptmx /dev
 
 mkdir -p /var/help
-echo "$(cat /persist/stage)" of "$(/bin/adtdump --macho-header|/bin/macho-version)" > /var/help/001-title
-cat /persist/stage1-uname.txt >> /var/help/001-title
-uname -a >> /var/help/001-title
+echo "booted" "$(cat /persist/stage)" of "$(/bin/adtdump --macho-header|/bin/macho-version)" > /var/help/001-title
+echo "stage1 " "$(cat /persist/stage1-uname.txt)" >> /var/help/001-title
+echo "running" "$(uname -a)" >> /var/help/001-title
 
 cat > /bin/help <<EOF
 for a in /var/help/*; do
@@ -49,7 +49,7 @@ EOF
 echo 4 5 4 4 > /proc/sys/kernel/printk
 
 screen -c .screenrc < /dev/tty1 &
-(sleep 15; TERM=linux screen -m -x < /dev/ttyGS0) &
+(sleep 1; TERM=linux screen -m -x < /dev/ttyGS0) &
 
 touch /noboot
 cat > /var/help/050-shell <<EOF
