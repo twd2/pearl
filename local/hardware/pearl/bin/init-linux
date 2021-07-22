@@ -1,0 +1,35 @@
+#!/bin/sh
+mkdir mnt
+mount -t proc proc /proc
+mount -t sysfs sys /sys
+mount -t devtmpfs dev /dev
+mount -t configfs config /sys/kernel/config
+mount -t debugfs debug /sys/kernel/debug
+cp modules.tar /persist
+cd /
+tar xvf /boot/linux.modules
+cp /boot/linux.modules /persist
+modprobe pcie-apple-m1-nvme
+
+# Wait for root device.
+ROOT=$(cat /proc/cmdline | sed -e 's/^.*\broot=\([^ ]*\).*$/\1/')
+for i in $(seq 1 30); do
+   if [ -e "${ROOT}" ]; then
+        break
+    fi
+    echo -n .
+    sleep 1
+done
+
+while true; do
+    ROOT=$(cat /proc/cmdline | sed -e 's/^.*\broot=\([^ ]*\).*$/\1/')
+    ([ -x /mnt/sbin/init ] || [ -L /mnt/sbin/init ]) && mkdir -p /mnt/persist && cp persist/* /mnt/persist && sync && exec switch_root /mnt /sbin/init
+    mount $ROOT /mnt && continue
+    vgchange -ay
+    (cd /sys/class/block; for DM in $(ls -d dm-*); do
+	 NAME=$(cat $DM/dm/name)
+	 ln -sf $DM /dev/$NAME
+	 [ -e /dev/$NAME-decrypted ] || cryptsetup open /dev/$NAME $NAME-decrypted;
+     done)
+    /bin/sh
+done
