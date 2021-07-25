@@ -56,7 +56,7 @@ linux/%{menuconfig}: linux/%.config $(BUILD)/linux/done/%/copy $(BUILD)/gcc/done
 	$(CP) $(BUILD)/linux/$*/build/.config $<
 
 $(BUILD)/linux/done/%/copy: $(BUILD)/linux/done/checkout | $(BUILD)/linux/done/%/ $(BUILD)/linux/%/build/
-	$(CP) -aus $(PWD)/linux/linux/* $(BUILD)/linux/$*/build/
+	$(CP) -faus $(PWD)/linux/linux/* $(BUILD)/linux/$*/build/
 	@touch $@
 
 $(BUILD)/linux/done/headers/install: $(BUILD)/linux/done/headers/copy | $(BUILD)/pearl/done/install/mkdir
